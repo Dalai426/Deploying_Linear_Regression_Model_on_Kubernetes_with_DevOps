@@ -23,6 +23,15 @@ pipeline {
                 }
             }
         }
+        stage('Trivy Docker Image Scan') {
+            steps {
+                // Trivy Docker Image Scan
+                script {
+                    echo 'Scanning Docker Image with Trivy...'
+                    sh "trivy image --format table -o trivy-image-report.html ${DOCKERHUB_REPOSITORY}:latest"
+                }
+            }
+        }
         stage('Lint Code') {
             steps {
                 // Lint code
