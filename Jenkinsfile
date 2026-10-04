@@ -15,26 +15,23 @@ pipeline {
                 }
             }
         }
-        stage('Lint Code') {
-            agent {
-                docker {
-                    image 'python:3.12-slim'
-                    args '-u root'
-                }
-            }
-            steps {
-                // Lint code
-                script {
-                    echo 'Linting Python Code...'
-                    sh "python -m pip install -r requirement.txt"
-                }
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 script {
                     echo 'Building Docker Image...'
                     dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:latest")
+                }
+            }
+        }
+        stage('Lint Code') {
+            steps {
+                // Lint code
+                script {
+                        dockerImage.inside() {
+                            sh '''
+                                python -m pytest ./test/test.py --disable-warnings
+                            '''
+                        }
                 }
             }
         }
