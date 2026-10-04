@@ -25,7 +25,11 @@ pipeline {
         }
         stage('Export Docker Image') {
             steps {
-                docker.save("${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}", "image.tar")
+                sh """
+                    docker save \
+                    ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER} \
+                    -o image.tar
+                """
             }
         }
         stage('Trivy Docker Image Scan') {
