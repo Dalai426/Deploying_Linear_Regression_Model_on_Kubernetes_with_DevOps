@@ -21,6 +21,7 @@ pipeline {
                 script {
                     echo 'Linting Python Code...'
                     sh "python -m pip install --break-system-packages -r requirement.txt"
+                }
             }
         }
         stage('Build Docker Image') {
