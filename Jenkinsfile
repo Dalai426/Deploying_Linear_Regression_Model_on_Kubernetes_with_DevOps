@@ -6,5 +6,13 @@ pipeline {
         DOCKERHUB_REPOSITORY = 'dalai426/aau'
     }
     stages {
+        stage('Start') {
+            steps {
+                script {
+                    echo "Starting the pipeline..."
+                    ls -l
+                }
+            }
+        }
     }
 }
