@@ -2,6 +2,7 @@ pipeline {
     agent {
         docker {
             image 'python:3.12-slim'
+            args '-u root'
         }
     }
     environment {
@@ -24,7 +25,7 @@ pipeline {
                 // Lint code
                 script {
                     echo 'Linting Python Code...'
-                    sh "python -m pip install --break-system-packages -r requirement.txt"
+                    sh "python -m pip install -r requirement.txt"
                 }
             }
         }
