@@ -41,6 +41,8 @@ pipeline {
                 }
             }
             steps {
+                // Run Trivy scan on the exported Docker image
+                sh 'ls -l /workspace'
                 sh """
                     trivy image \
                     --input /workspace/image.tar \
