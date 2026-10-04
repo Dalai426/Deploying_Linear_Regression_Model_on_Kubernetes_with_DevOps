@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building Docker Image...'
-                    dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:latest")
+                    dockerImage = docker.build("${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}")
                 }
             }
         }
@@ -27,33 +27,29 @@ pipeline {
             steps {
                 sh """
                     docker save \
-                    ${DOCKERHUB_REPOSITORY}:latest \
+                        ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER} \
                     -o image.tar
                 """
             }
         }
-      stage('Trivy Docker Image Scan') {
-    agent {
-        docker {
-            image 'aquasec/trivy:latest'
-            args "--entrypoint='' -v ${WORKSPACE}:/workspace"
+        stage('Trivy Docker Image Scan') {
+            agent {
+                docker {
+                    image 'aquasec/trivy:latest'
+                    // Mount the Jenkins workspace to the container
+                    args '-v ${WORKSPACE}:/workspace'
+                }
+            }
+            steps {
+                sh """
+                    trivy image \
+                    --input /workspace/image.tar \
+                    --severity HIGH,CRITICAL \
+                    --exit-code 1 \
+                    --format table
+                """
+            }
         }
-    }
-
-    steps {
-        sh '''
-            echo "Testing container"
-            ls -lh /workspace
-            trivy --version
-
-            trivy image \
-                --input /workspace/image.tar \
-                --severity HIGH,CRITICAL \
-                --exit-code 1 \
-                --format table
-        '''
-    }
-}
         stage('Lint Code') {
             steps {
                 // Lint code
