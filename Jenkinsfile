@@ -1,7 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIAL_ID = credentials('efb573bb-0222-4486-b7af-429a75f982fe')
+        // the ID of the DockerHub credentials stored in Jenkins
+        DOCKERHUB_CREDENTIAL_ID = 'efb573bb-0222-4486-b7af-429a75f982fe'
         DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
         DOCKERHUB_REPOSITORY = 'dalai426/aau'
     }
