@@ -27,7 +27,7 @@ pipeline {
             steps {
                 sh """
                     docker save \
-                    ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER} \
+                    ${DOCKERHUB_REPOSITORY}:latest \
                     -o image.tar
                 """
             }
