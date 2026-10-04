@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     echo "Starting the pipeline..."
-                    ls -l
+                    sh 'ls -l'
                 }
             }
         }
