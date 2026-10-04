@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.12-slim'
-            args '-u root'
-        }
-    }
+    agent any
     environment {
         // the ID of the DockerHub credentials stored in Jenkins
         DOCKERHUB_CREDENTIAL_ID = 'efb573bb-0222-4486-b7af-429a75f982fe'
@@ -21,6 +16,12 @@ pipeline {
             }
         }
         stage('Lint Code') {
+            agent {
+                docker {
+                    image 'python:3.12-slim'
+                    args '-u root'
+                }
+            }
             steps {
                 // Lint code
                 script {
