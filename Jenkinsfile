@@ -24,6 +24,11 @@ pipeline {
             }
         }
         stage('Trivy Docker Image Scan') {
+            agent {
+                docker {
+                    image 'aquasec/trivy:latest'
+                }
+            }
             steps {
                 // Trivy Docker Image Scan
                 script {
