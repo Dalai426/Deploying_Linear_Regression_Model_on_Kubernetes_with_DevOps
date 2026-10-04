@@ -32,26 +32,28 @@ pipeline {
                 """
             }
         }
-        stage('Trivy Docker Image Scan') {
-            agent {
-                docker {
-                    image 'aquasec/trivy:latest'
-                    // Mount the Jenkins workspace to the container
-                    args '-v ${WORKSPACE}:/workspace'
-                }
-            }
-            steps {
-                // Run Trivy scan on the exported Docker image
-                sh 'ls -l /workspace'
-                sh """
-                    trivy image \
-                    --input /workspace/image.tar \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    --format table
-                """
-            }
+      stage('Trivy Docker Image Scan') {
+    agent {
+        docker {
+            image 'aquasec/trivy:latest'
+            args "--entrypoint='' -v ${WORKSPACE}:/workspace"
         }
+    }
+
+    steps {
+        sh '''
+            echo "Testing container"
+            ls -lh /workspace
+            trivy --version
+
+            trivy image \
+                --input /workspace/image.tar \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --format table
+        '''
+    }
+}
         stage('Lint Code') {
             steps {
                 // Lint code
