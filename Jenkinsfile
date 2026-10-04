@@ -23,15 +23,27 @@ pipeline {
                 }
             }
         }
-        stage('Trivy Docker Image Scan') {
+        stage('Export Docker Image') {
             steps {
-                container('trivy') {
-                    // Trivy Docker Image Scan
-                    script {
-                        echo 'Scanning Docker Image with Trivy...'
-                        sh "trivy image --format table -o trivy-image-report.html ${DOCKERHUB_REPOSITORY}:latest"
-                    }
+                docker.save("${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}", "image.tar")
+            }
+        }
+        stage('Trivy Docker Image Scan') {
+            agent {
+                docker {
+                    image 'aquasec/trivy:latest'
+                    // Mount the Jenkins workspace to the container
+                    args '-v ${WORKSPACE}:/workspace'
                 }
+            }
+            steps {
+                sh """
+                    trivy image \
+                    --input /workspace/image.tar \
+                    --severity HIGH,CRITICAL \
+                    --exit-code 1 \
+                    --format table
+                """
             }
         }
         stage('Lint Code') {
