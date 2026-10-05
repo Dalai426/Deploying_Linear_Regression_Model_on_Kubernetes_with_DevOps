@@ -86,6 +86,13 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://host.docker.internal:56372') {
+                    sh '''
+                        echo "=== Kubernetes Context ==="
+                        kubectl config current-context
+                        kubectl cluster-info
+                        envsubst < kubernetes/deployment.yaml | kubectl apply -f -
+                        kubectl apply -f kubernetes/service.yaml
+                    '''
                 }
             }
         }
