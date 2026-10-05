@@ -91,8 +91,8 @@ pipeline {
                         kubectl config current-context
                         kubectl cluster-info
                         ls ./kubernetes
-                        envsubst < ./kubernetes/kube-deployment.yaml | kubectl apply -f -
-                        kubectl apply -f ./kubernetes/kube-service.yaml
+                        envsubst < ./kubernetes/kube-deployment.yml | kubectl apply -f -
+                        kubectl apply -f ./kubernetes/kube-service.yml
                     '''
                 }
             }
