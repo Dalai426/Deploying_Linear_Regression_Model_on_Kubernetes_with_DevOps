@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lrm-model-deployment
@@ -12,8 +12,10 @@ spec:
       labels:
         app: lrm-model-deployment
     spec:
+      imagePullSecrets:
+        - name: dockerhub-secret
       containers:
         - name: lrm-model-container
-          image: ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}
+          image: dalai426/aau:43
           ports:
             - containerPort: 8000
