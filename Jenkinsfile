@@ -3,35 +3,36 @@ pipeline {
     environment {
         // the ID of the DockerHub credentials stored in Jenkins
         DOCKERHUB_CREDENTIAL_ID = 'efb573bb-0222-4486-b7af-429a75f982fe'
-        DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
+        DOCKERHUB_REGISTRY = 'https://index.docker.io/v1/'
         DOCKERHUB_REPOSITORY = 'dalai426/aau'
     }
     stages {
+        stage('Start') {
+            steps {
+                script {
+                    echo 'Starting the pipeline...'
+                    sh 'ls -l'
+                }
+            }
+        }
         stage('Kubernetes Secret') {
             steps {
                 withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://host.docker.internal:56372') {
                     withCredentials([
                         usernamePassword(
-                        credentialsId: "${DOCKERHUB_CREDENTIAL_ID}",
-                        usernameVariable: 'DOCKERHUB_USERNAME',
-                        passwordVariable: 'DOCKERHUB_TOKEN'
+                            credentialsId: "${DOCKERHUB_CREDENTIAL_ID}",
+                            usernameVariable: 'DOCKERHUB_USERNAME',
+                            passwordVariable: 'DOCKERHUB_TOKEN'
                         )
                     ]) {
                         sh '''
+                    kubectl delete secret dockerhub-secret --ignore-not-found
                     kubectl create secret docker-registry dockerhub-secret \
                     --docker-server="${DOCKERHUB_REGISTRY}" \
                     --docker-username="${DOCKERHUB_USERNAME}" \
                     --docker-password="${DOCKERHUB_TOKEN}"
                     '''
                     }
-                }
-            }
-        }
-        stage('Start') {
-            steps {
-                script {
-                    echo 'Starting the pipeline...'
-                    sh 'ls -l'
                 }
             }
         }
@@ -79,6 +80,12 @@ pipeline {
                     docker.withRegistry("${DOCKERHUB_REGISTRY}", "${DOCKERHUB_CREDENTIAL_ID}") {
                         dockerImage.push(env.BUILD_NUMBER)
                     }
+                }
+            }
+        }
+        stage('Kubernetes Deployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://host.docker.internal:56372') {
                 }
             }
         }
