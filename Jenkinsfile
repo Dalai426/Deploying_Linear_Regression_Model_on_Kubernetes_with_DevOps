@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    options {
-        withBuildUser()
-    }
     environment {
         // the ID of the DockerHub credentials stored in Jenkins
         DOCKERHUB_CREDENTIAL_ID = 'efb573bb-0222-4486-b7af-429a75f982fe'
@@ -65,21 +62,25 @@ pipeline {
                 }
             }
         }
-    }
-    post {
-        success {
-            emailext(
-            subject: "Jenkins Pipeline Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: "The Jenkins pipeline for job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} has completed successfully.\n\nCheck the build details at: ${env.BUILD_URL}",
-            to: "${env.BUILD_USER_EMAIL}"
-        )
-        }
-        failure {
-            emailext(
-            subject: "Jenkins Pipeline Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: "The Jenkins pipeline for job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} has failed.\n\nCheck the build details at: ${env.BUILD_URL}",
-            to: "${env.BUILD_USER_EMAIL}"
-        )
+        stage('Kubernetes Secret') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:56372') {
+                    withCredentials([
+                        usernamePassword(
+                        credentialsId: "${DOCKERHUB_CREDENTIAL_ID}",
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                        )
+                    ]) {
+                        sh '''
+                    kubectl create secret docker-registry dockerhub-secret \
+                    --docker-server="${DOCKERHUB_REGISTRY}" \
+                    --docker-username="${DOCKERHUB_USERNAME}" \
+                    --docker-password="${DOCKERHUB_TOKEN}"
+                    '''
+                    }
+                }
+            }
         }
     }
 }

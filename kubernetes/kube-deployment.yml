@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: lrm-model-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lrm-model-deployment
+  template:
+    metadata:
+      labels:
+        app: lrm-model-deployment
+    spec:
+      containers:
+        - name: lrm-model-container
+          image: ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}
+          ports:
+            - containerPort: 8000
