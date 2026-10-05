@@ -16,6 +16,6 @@ spec:
         - name: dockerhub-secret
       containers:
         - name: lrm-model-container
-          image: dalai426/aau:43
+          image: ${DOCKERHUB_REPOSITORY}:${BUILD_NUMBER}
           ports:
             - containerPort: 8000

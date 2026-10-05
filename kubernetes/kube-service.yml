@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: lrm-model-deployment
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: lrm-model-deployment
   ports:
     - protocol: TCP
-      port: 8000
+      port: 8001
+      targetPort: 8000
