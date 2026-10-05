@@ -7,6 +7,31 @@ pipeline {
         DOCKERHUB_REPOSITORY = 'dalai426/aau'
     }
     stages {
+        stage('Kubernetes Secret') {
+            agent {
+                docker {
+                    image 'bitnami/kubectl:latest'
+                }
+            }
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://host.docker.internal:56372') {
+                    withCredentials([
+                        usernamePassword(
+                        credentialsId: "${DOCKERHUB_CREDENTIAL_ID}",
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                        )
+                    ]) {
+                        sh '''
+                    kubectl create secret docker-registry dockerhub-secret \
+                    --docker-server="${DOCKERHUB_REGISTRY}" \
+                    --docker-username="${DOCKERHUB_USERNAME}" \
+                    --docker-password="${DOCKERHUB_TOKEN}"
+                    '''
+                    }
+                }
+            }
+        }
         stage('Start') {
             steps {
                 script {
@@ -58,26 +83,6 @@ pipeline {
                 script {
                     docker.withRegistry("${DOCKERHUB_REGISTRY}", "${DOCKERHUB_CREDENTIAL_ID}") {
                         dockerImage.push(env.BUILD_NUMBER)
-                    }
-                }
-            }
-        }
-        stage('Kubernetes Secret') {
-            steps {
-                withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://127.0.0.1:56372') {
-                    withCredentials([
-                        usernamePassword(
-                        credentialsId: "${DOCKERHUB_CREDENTIAL_ID}",
-                        usernameVariable: 'DOCKERHUB_USERNAME',
-                        passwordVariable: 'DOCKERHUB_TOKEN'
-                        )
-                    ]) {
-                        sh '''
-                    kubectl create secret docker-registry dockerhub-secret \
-                    --docker-server="${DOCKERHUB_REGISTRY}" \
-                    --docker-username="${DOCKERHUB_USERNAME}" \
-                    --docker-password="${DOCKERHUB_TOKEN}"
-                    '''
                     }
                 }
             }
