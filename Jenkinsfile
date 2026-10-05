@@ -8,12 +8,6 @@ pipeline {
     }
     stages {
         stage('Kubernetes Secret') {
-            agent {
-                docker {
-                    image 'bitnami/kubectl:latest'
-                    args '--entrypoint=""'
-                }
-            }
             steps {
                 withKubeConfig(caCertificate: '', clusterName: 'minikube', contextName: 'minikube', credentialsId: 'kubernete', namespace: 'default', restrictKubeConfigAccess: false, serverUrl: 'https://host.docker.internal:56372') {
                     withCredentials([
