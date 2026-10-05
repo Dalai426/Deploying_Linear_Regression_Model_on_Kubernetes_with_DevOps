@@ -90,8 +90,9 @@ pipeline {
                         echo "=== Kubernetes Context ==="
                         kubectl config current-context
                         kubectl cluster-info
-                        envsubst < kubernetes/kube-deployment.yaml | kubectl apply -f -
-                        kubectl apply -f kubernetes/kube-service.yaml
+                        ls ./kubernetes
+                        envsubst < ./kubernetes/kube-deployment.yaml | kubectl apply -f -
+                        kubectl apply -f ./kubernetes/kube-service.yaml
                     '''
                 }
             }
