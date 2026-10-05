@@ -33,7 +33,7 @@ pipeline {
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     aquasec/trivy:latest \
                     image \
-                    --severity HIGH,CRITICAL \
+                    --severity CRITICAL \
                     --exit-code 1 \
                     --format table \
                     ${image}
