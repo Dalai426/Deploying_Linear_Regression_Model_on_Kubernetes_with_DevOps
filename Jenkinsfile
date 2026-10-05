@@ -91,7 +91,8 @@ pipeline {
                         kubectl config current-context
                         kubectl cluster-info
                         ls ./kubernetes
-                        sed -e "s|\${DOCKERHUB_REPOSITORY}|$DOCKERHUB_REPOSITORY|g" -e "s|\${BUILD_NUMBER}|$BUILD_NUMBER|g" ./kubernetes/kube-deployment.yml | kubectl apply -f -
+                        IMAGE="$DOCKERHUB_REPOSITORY:$BUILD_NUMBER"
+                        sed "s|DOCKER_IMAGE|$IMAGE|g" ./kubernetes/kube-deployment.yml | kubectl apply -f -
                         kubectl apply -f ./kubernetes/kube-service.yml
                     '''
                 }
