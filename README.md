@@ -23,6 +23,21 @@ metadata:
 type: kubernetes.io/service-account-token
 kubectl apply -f jenkins-token.yaml
 ```
+### Prediction
+```bash
+curl -X POST "http://127.0.0.1:8001/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "MedInc": 5.0,
+    "HouseAge": 20.0,
+    "AveRooms": 5.5,
+    "AveBedrms": 1.0,
+    "Population": 1000.0,
+    "AveOccup": 3.0,
+    "Latitude": 34.0,
+    "Longitude": -118.0
+  }'
+```
 
 
 
