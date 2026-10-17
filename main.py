@@ -2,13 +2,22 @@ from fastapi import FastAPI
 import joblib
 from pydantic import BaseModel
 import pandas as pd
-
+import mlflow
+from mlflow import sklearn as mlflow_sklearn
 
 app = FastAPI(title="Real Estate Price Prediction API")
 
 # Load trained model
-model = joblib.load("model/real_estate_model.pkl")
+MLFLOW_TRACKING_URI = "http://192.168.1.108:5001"
+MLFLOW_REGISTRY_URI="http://192.168.1.108:5001"
+MODEL_URI = "models:/RealEstateRandomForest@prod"
 
+
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_registry_uri(MLFLOW_REGISTRY_URI)
+mlflow.set_experiment("real-estate-inference")
+model = mlflow_sklearn.load_model(MODEL_URI)
+print(type(model))
 
 class HouseData(BaseModel):
     MedInc: float
@@ -27,6 +36,7 @@ def root():
 
 
 @app.post("/predict")
+@mlflow.trace(name="house-price-prediction")
 def predict(house: HouseData):
     features = pd.DataFrame([{
         "MedInc": house.MedInc,
@@ -40,7 +50,7 @@ def predict(house: HouseData):
     }])
 
     prediction = model.predict(features)[0]
-
+    
     # California Housing target is measured in $100,000s
     price = prediction * 100_000
 

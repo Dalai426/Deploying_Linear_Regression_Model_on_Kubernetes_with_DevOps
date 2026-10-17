@@ -1,5 +1,5 @@
 import json
-
+from mlflow import sklearn as mlflow_sklearn
 import joblib
 from sklearn.metrics import (
     mean_absolute_error,
@@ -10,9 +10,17 @@ import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from main import app
+import mlflow
+
+MLFLOW_TRACKING_URI = "http://192.168.1.108:5001"
+MLFLOW_REGISTRY_URI="http://192.168.1.108:5001"
+MODEL_URI = "models:/RealEstateRandomForest@prod"
 
 
-model = joblib.load("model/real_estate_model.pkl")
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_registry_uri(MLFLOW_REGISTRY_URI)
+model = mlflow_sklearn.load_model(MODEL_URI)
+
 features_test, output_test = joblib.load("data/test_data.pkl")
 client = TestClient(app)
 
